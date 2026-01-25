@@ -9,6 +9,13 @@ import pandas as pd
 #means only when executed directly it opens
 app = Flask(__name__)
 
+#to display only tabel of stations.
+#below line is when you want only those columns
+stations = pd.read_csv("data_small/stations.txt",skiprows = 17)
+stations = stations[["STAID","STANAME                                 "]]
+print(stations)
+
+
 
 
 #connects html page to obj
@@ -18,7 +25,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    #.to_html() converts it to html ver of table
+    return render_template("home.html",data = stations.to_html())
 
 
 
@@ -60,4 +68,4 @@ def about(station,date):
 if __name__ == "__main__":
     #shows error on website + auto refresh
     #you can only run 2 flask apps simultaneously by makin them have diff ports
-    app.run(debug=True)
+    app.run(debug=True,port=5008)
