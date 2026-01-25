@@ -2,8 +2,6 @@ from flask import Flask, render_template
 import pandas as pd
 
 
-
-
 #website obj
 #is like the main frame/source
 #means only when executed directly it opens
@@ -13,9 +11,6 @@ app = Flask(__name__)
 #below line is when you want only those columns
 stations = pd.read_csv("data_small/stations.txt",skiprows = 17)
 stations = stations[["STAID","STANAME                                 "]]
-print(stations)
-
-
 
 
 #connects html page to obj
@@ -32,8 +27,6 @@ def home():
 
 #must always create "templates" folder to use render_template
 #and must be in same directory
-
-
 
 
 #when someone types this "api/....." the <station> and date are variables that can be interacted with
@@ -64,6 +57,23 @@ def about(station,date):
     }
 
 
+@app.route("/api/v1/<station>")
+def weather(station):
+    #make sure to convert to something like dict or html coz without it is pandas
+    #datatype
+    #orient means it will make dictionary in better way horizontally
+    station_only = pd.read_csv("data_small/TG_STAID"+str(station).zfill(6)+".txt",
+                               skiprows = 20, parse_dates =["    DATE"] )
+    station_only=station_only.to_dict(orient="records")
+    return station_only
+
+@app.route("/api/v1/yearly/<station>/<date>")
+def yearly(station,date):
+    filename = "data_small/TG_STAID"+str(station).zfill(6)+".txt"
+    df = pd.read_csv(filename, skiprows=20 )
+    df["    DATE"] = df["    DATE"].astype(str)
+    result = df[df["    DATE"].str.startswith(str(date))]
+    return result.to_dict(orient="records")
 #means only when executed directly it opens
 if __name__ == "__main__":
     #shows error on website + auto refresh
